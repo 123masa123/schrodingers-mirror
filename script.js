@@ -640,7 +640,7 @@ function processRomajiInput(char) {
   }
 }
 
-// キーボードイベント（物理キーボード用）
+// キーボード特殊操作（Enter / Backspace）
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     if (romajiBuffer === 'n') {
@@ -669,17 +669,12 @@ window.addEventListener('keydown', (e) => {
     }
     return;
   }
-
-  // 1文字キー入力（英数・直接入力）
-  if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-    processRomajiInput(e.key);
-  }
 });
 
-// 日本語IME・モバイルフリック入力・全角入力の統合リスナー
+// 日本語IME・モバイルフリック入力・直接入力の統合リスナー（一重入力で確実に処理）
 const hiddenInput = document.getElementById('hidden-input');
 if (hiddenInput) {
-  hiddenInput.addEventListener('input', (e) => {
+  hiddenInput.addEventListener('input', () => {
     const val = hiddenInput.value;
     if (val) {
       for (const char of val) {
