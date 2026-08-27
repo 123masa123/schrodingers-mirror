@@ -143,15 +143,15 @@ if (startBtn) {
 }
 
 // ----------------------------------------------------
-// 0. 音響システム (Water Drop MP3 Files)
+// 0. 音響システム (Web Audio Files)
 // ----------------------------------------------------
 let audioCtx = null;
 
-// 水滴音源ファイルのパスリスト
+// 水滴音源ファイルのパスリスト（英数字パスでWebサーバー対応）
 const WATER_DROP_SRCS = [
-  'sound/水滴1.mp3',
-  'sound/水滴2.mp3',
-  'sound/水滴3.mp3'
+  'sound/water1.mp3',
+  'sound/water2.mp3',
+  'sound/water3.mp3'
 ];
 
 // プリロードしたAudioBufferのキャッシュ
@@ -173,10 +173,13 @@ function initAudio() {
     buffersLoaded = true;
     WATER_DROP_SRCS.forEach((src, i) => {
       fetch(src)
-        .then(res => res.arrayBuffer())
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.arrayBuffer();
+        })
         .then(arrayBuf => audioCtx.decodeAudioData(arrayBuf))
         .then(audioBuf => { waterDropBuffers[i] = audioBuf; })
-        .catch(err => console.warn('水滴音源の読み込みエラー:', src, err));
+        .catch(err => console.warn('水滴音源の読み込みスキップ:', src, err));
     });
   }
 }
@@ -185,7 +188,6 @@ function initAudio() {
 function playWaterDrop() {
   if (!audioCtx || audioCtx.state !== 'running') return;
 
-  // ロード済みバッファのみ対象にランダムで選択
   const available = waterDropBuffers.filter(b => !!b);
   if (available.length === 0) return;
 
@@ -193,9 +195,8 @@ function playWaterDrop() {
   const source = audioCtx.createBufferSource();
   source.buffer = buf;
 
-  // 音量調整（控えめ）
   const gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.1 + Math.random() * 0.2; // 0.7〜1.0
+  gainNode.gain.value = 0.15 + Math.random() * 0.15;
 
   source.connect(gainNode);
   gainNode.connect(audioCtx.destination);
@@ -212,21 +213,23 @@ function scheduleNextDrop() {
 }
 scheduleNextDrop();
 
-// --- B. ガラスを拭う摩擦音（キュッキュッと拭く1.mp3） ---
-let squeakBuffer = null;          // プリロード済みAudioBuffer
-let squeakNode = null;            // 現在再生中のBufferSourceNode
-let squeakGainNode = null;        // 音量制御
-let squeakStopTimer = null;       // フェード開始用タイマー（90ms）
-let squeakStopNodeTimer = null;   // ノード停止用タイマー（400ms）
+// --- B. ガラスを拭う摩擦音（squeak1.mp3） ---
+let squeakBuffer = null;
+let squeakNode = null;
+let squeakGainNode = null;
+let squeakStopTimer = null;
+let squeakStopNodeTimer = null;
 
-// 摩擦音源のプリロード（initAudio内から呼ばれる）
 function loadSqueakBuffer() {
   if (squeakBuffer || !audioCtx) return;
-  fetch('sound/キュッキュッと拭く1.mp3')
-    .then(res => res.arrayBuffer())
+  fetch('sound/squeak1.mp3')
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      return res.arrayBuffer();
+    })
     .then(arrayBuf => audioCtx.decodeAudioData(arrayBuf))
     .then(audioBuf => { squeakBuffer = audioBuf; })
-    .catch(err => console.warn('摩擦音源の読み込みエラー:', err));
+    .catch(err => console.warn('摩擦音源の読み込みスキップ:', err));
 }
 
 function stopGlassSqueak(immediate = false) {
@@ -637,7 +640,7 @@ function processRomajiInput(char) {
   }
 }
 
-// キーボードイベント（IME不要・キーを押した瞬間に変換）
+// キーボードイベント（物理キーボード用）
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     if (romajiBuffer === 'n') {
@@ -667,11 +670,34 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
-  // 1文字キー入力
+  // 1文字キー入力（英数・直接入力）
   if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
     processRomajiInput(e.key);
   }
 });
+
+// 日本語IME・モバイルフリック入力・全角入力の統合リスナー
+const hiddenInput = document.getElementById('hidden-input');
+if (hiddenInput) {
+  hiddenInput.addEventListener('input', (e) => {
+    const val = hiddenInput.value;
+    if (val) {
+      for (const char of val) {
+        processRomajiInput(char);
+      }
+      hiddenInput.value = '';
+    }
+  });
+}
+
+// 画面クリック/タップで常に入力を受け付けられるようフォーカス維持
+function maintainInputFocus() {
+  if (hiddenInput && !isIntroActive) {
+    hiddenInput.focus();
+  }
+}
+window.addEventListener('click', maintainInputFocus);
+window.addEventListener('touchstart', maintainInputFocus);
 
 // ----------------------------------------------------
 // 3. アニメーションループ（結露復元と文字の揮発）
