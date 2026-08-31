@@ -340,6 +340,11 @@ function calcLineWidth(dist, dt) {
 }
 
 fogCanvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (e.target && e.target.setPointerCapture) {
+    try { e.target.setPointerCapture(e.pointerId); } catch (err) { }
+  }
+
   const pos = { x: e.offsetX, y: e.offsetY };
   lastPos = pos;
   lastTime = performance.now();
@@ -351,6 +356,7 @@ fogCanvas.addEventListener('pointerdown', e => {
 });
 
 fogCanvas.addEventListener('pointermove', e => {
+  e.preventDefault();
   if (!lastPos) return;
   const now = performance.now();
   const cur = { x: e.offsetX, y: e.offsetY };
@@ -383,24 +389,22 @@ fogCanvas.addEventListener('pointermove', e => {
   lastTime = now;
 });
 
-fogCanvas.addEventListener('pointerup', () => {
+function endStroke(e) {
+  if (e && e.target && e.target.releasePointerCapture && e.pointerId !== undefined) {
+    try { e.target.releasePointerCapture(e.pointerId); } catch (err) { }
+  }
   lastPos = null;
   stopGlassSqueak(true);
-});
+}
 
-fogCanvas.addEventListener('pointerleave', () => {
-  lastPos = null;
-  stopGlassSqueak(true);
-});
+fogCanvas.addEventListener('pointerup', endStroke);
+fogCanvas.addEventListener('pointerleave', endStroke);
+fogCanvas.addEventListener('pointercancel', endStroke);
 
-window.addEventListener('pointerup', () => {
-  lastPos = null;
-  stopGlassSqueak(true);
-});
-window.addEventListener('touchend', () => {
-  lastPos = null;
-  stopGlassSqueak(true);
-});
+window.addEventListener('pointerup', endStroke);
+window.addEventListener('pointercancel', endStroke);
+window.addEventListener('touchend', endStroke);
+window.addEventListener('touchcancel', endStroke);
 
 // ----------------------------------------------------
 // 2. ひらがな自動変換 ＆ 画面比率に応じた縦横タイピング
