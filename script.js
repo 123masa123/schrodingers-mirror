@@ -106,28 +106,6 @@ function setupTimeBasedIntro() {
   if (btnEl) btnEl.textContent = msg.button;
 }
 
-let hintTimer = null;
-function showExperienceHint() {
-  const hint = document.getElementById('experience-hint');
-  if (!hint) return;
-  setTimeout(() => {
-    hint.classList.add('show');
-  }, 600);
-
-  // 7秒後に自動でフェードアウト
-  hintTimer = setTimeout(() => {
-    hideExperienceHint();
-  }, 7000);
-}
-
-function hideExperienceHint() {
-  const hint = document.getElementById('experience-hint');
-  if (hint && hint.classList.contains('show')) {
-    hint.classList.remove('show');
-    if (hintTimer) clearTimeout(hintTimer);
-  }
-}
-
 function startExperience() {
   if (!isIntroActive) return;
   isIntroActive = false;
@@ -144,9 +122,6 @@ function startExperience() {
   if (overlay) {
     overlay.classList.add('hidden');
   }
-
-  // 操作ヒントを表示
-  showExperienceHint();
 
   // 入力フォーカス
   setTimeout(() => {
@@ -366,7 +341,6 @@ function calcLineWidth(dist, dt) {
 
 fogCanvas.addEventListener('pointerdown', e => {
   e.preventDefault();
-  hideExperienceHint();
   if (e.target && e.target.setPointerCapture) {
     try { e.target.setPointerCapture(e.pointerId); } catch (err) { }
   }
@@ -482,7 +456,6 @@ function startNewPhrase(customX = null, customY = null) {
 
 // 1文字を追加
 function addTypedChar(char) {
-  hideExperienceHint();
   if (!isPhraseActive) {
     startNewPhrase();
   }

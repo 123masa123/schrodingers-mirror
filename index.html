@@ -47,22 +47,29 @@
         */
         #bg-image {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             z-index: 0;
-            filter: brightness(0.6); /* 少し暗く */
+            filter: brightness(0.6);
+            /* 少し暗く */
         }
 
         video {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             transform: scaleX(-1);
             z-index: 1;
-            opacity: 0.55;           /* 背景画像と合成するため半透明 */
-            mix-blend-mode: luminosity; /* 自然な合成モード */
+            opacity: 0.55;
+            /* 背景画像と合成するため半透明 */
+            mix-blend-mode: luminosity;
+            /* 自然な合成モード */
             transition: filter 0.1s ease;
             touch-action: none;
             pointer-events: none;
@@ -70,8 +77,10 @@
 
         canvas {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 10;
             pointer-events: auto;
             transform: scaleX(-1);
@@ -83,8 +92,10 @@
         /* ---- ファーストビュー（導入オーバーレイ） ---- */
         #intro-overlay {
             position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 100;
             display: flex;
             justify-content: center;
@@ -202,55 +213,56 @@
             margin: 0;
         }
 
-        /* ---- 鏡の中の操作ヒント ---- */
-        #experience-hint {
-            position: absolute;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            z-index: 50;
-            pointer-events: none;
+        .intro-guide {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin: 6px 0;
+            padding: 16px 14px;
+            background: rgba(255, 245, 235, 0.04);
+            border: 1px solid rgba(220, 200, 180, 0.22);
+            border-radius: 16px;
+            backdrop-filter: blur(6px);
+            text-align: center;
+        }
+
+        .guide-item {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 6px;
-            padding: 12px 24px;
-            background: rgba(18, 15, 12, 0.65);
-            border: 1px solid rgba(240, 225, 210, 0.22);
-            border-radius: 24px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: #f2e9e1;
-            font-size: 13px;
-            letter-spacing: 0.12em;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        #experience-hint.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .hint-main {
-            display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: #f7efe6;
         }
 
-        .hint-divider {
-            color: rgba(220, 200, 180, 0.4);
-            font-weight: 300;
+        .guide-num {
+            font-size: 13px;
+            letter-spacing: 0.16em;
+            color: #d4b28c;
+            font-weight: 400;
         }
 
-        .hint-sub {
+        .guide-desc {
             font-size: 11px;
-            color: rgba(220, 210, 200, 0.65);
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
+            color: rgba(230, 220, 210, 0.75);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 520px) {
+            .intro-guide {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 14px;
+                text-align: left;
+            }
+            .guide-item {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 10px;
+            }
+            .guide-num {
+                min-width: 68px;
+            }
         }
 
         @keyframes introFadeIn {
@@ -259,6 +271,7 @@
                 filter: blur(6px);
                 transform: scale(0.98);
             }
+
             100% {
                 opacity: 1;
                 filter: blur(0px);
@@ -267,10 +280,13 @@
         }
 
         @keyframes pulseGlow {
-            0%, 100% {
+
+            0%,
+            100% {
                 border-color: rgba(255, 235, 220, 0.28);
                 box-shadow: 0 0 20px rgba(240, 210, 180, 0.06);
             }
+
             50% {
                 border-color: rgba(255, 245, 235, 0.55);
                 box-shadow: 0 0 30px rgba(250, 225, 200, 0.18);
@@ -291,16 +307,6 @@
         <textarea id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             style="position: fixed; opacity: 0; pointer-events: none; top: 0; left: 0; width: 10px; height: 10px; z-index: -1;"></textarea>
 
-        <!-- 鏡体験中の操作ヒント（進入直後に自動フェードイン/フェードアウト） -->
-        <div id="experience-hint">
-            <div class="hint-main">
-                <span>👇 指やマウスで画面を拭う</span>
-                <span class="hint-divider">|</span>
-                <span>⌨️ キーボードで文字を打つ</span>
-            </div>
-            <div class="hint-sub">※ 描いた線や言葉は 10秒 で湯気に溶けて消えます</div>
-        </div>
-
         <!-- ファーストビュー（時間帯別メッセージオーバーレイ） -->
         <div id="intro-overlay">
             <div id="intro-card">
@@ -311,8 +317,25 @@
                 <div class="intro-divider"></div>
                 <h2 id="intro-heading">「ちゃんとした誰か」になる前の、ひとときに。</h2>
                 <p id="intro-body">やがて朝の光と社会の視線が、あなたを一つの表情に縛りつける。
-その前に、まだ輪郭のあいまいで未確定なあなたを、
-この曇ったガラスにぶつけていってください。</p>
+                    その前に、まだ輪郭のあいまいで未確定なあなたを、
+                    この曇ったガラスにぶつけていってください。</p>
+
+                <!-- 使い方ガイド (提案A) -->
+                <div class="intro-guide">
+                    <div class="guide-item">
+                        <span class="guide-num">❶ ぬぐう</span>
+                        <span class="guide-desc">画面を拭うと曇りが削れ、擦り音が響く</span>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-num">❷ つづる</span>
+                        <span class="guide-desc">キーボードで叩くとひらがなが刻まれる</span>
+                    </div>
+                    <div class="guide-item">
+                        <span class="guide-num">❸ きえる</span>
+                        <span class="guide-desc">描いた言葉や線は 10秒 で湯気に溶けて消える</span>
+                    </div>
+                </div>
+
                 <button id="intro-start-btn" onclick="startExperience()">［ 鏡の前に立つ ］</button>
                 <p class="intro-note">※カメラを使用しますが、映像や入力情報は一切保存されません</p>
             </div>
