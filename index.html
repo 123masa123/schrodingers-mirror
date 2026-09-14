@@ -202,6 +202,57 @@
             margin: 0;
         }
 
+        /* ---- 鏡の中の操作ヒント ---- */
+        #experience-hint {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            z-index: 50;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 24px;
+            background: rgba(18, 15, 12, 0.65);
+            border: 1px solid rgba(240, 225, 210, 0.22);
+            border-radius: 24px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #f2e9e1;
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1), transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        #experience-hint.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .hint-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #f7efe6;
+        }
+
+        .hint-divider {
+            color: rgba(220, 200, 180, 0.4);
+            font-weight: 300;
+        }
+
+        .hint-sub {
+            font-size: 11px;
+            color: rgba(220, 210, 200, 0.65);
+            letter-spacing: 0.08em;
+        }
+
         @keyframes introFadeIn {
             0% {
                 opacity: 0;
@@ -239,6 +290,16 @@
         <!-- 日本語IME・全角・モバイルキーボード用の不可視入力欄 -->
         <textarea id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
             style="position: fixed; opacity: 0; pointer-events: none; top: 0; left: 0; width: 10px; height: 10px; z-index: -1;"></textarea>
+
+        <!-- 鏡体験中の操作ヒント（進入直後に自動フェードイン/フェードアウト） -->
+        <div id="experience-hint">
+            <div class="hint-main">
+                <span>👇 指やマウスで画面を拭う</span>
+                <span class="hint-divider">|</span>
+                <span>⌨️ キーボードで文字を打つ</span>
+            </div>
+            <div class="hint-sub">※ 描いた線や言葉は 10秒 で湯気に溶けて消えます</div>
+        </div>
 
         <!-- ファーストビュー（時間帯別メッセージオーバーレイ） -->
         <div id="intro-overlay">
